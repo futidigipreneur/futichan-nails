@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Futichan Nails</title>
+<link rel="icon" href="images/logo.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="page-loader"><div class="loader-nail"></div></div>
+
+<header class="site-header">
+  <div class="container">
+    <a href="index.html" class="logo"><span class="dot"></span>Futichan Nails</a>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="booking.html">Booking</a>
+      <a href="pricelist.html">Pricelist</a>
+      <a href="presson.html">Press On Nails</a>
+      <a href="cart.html">Cart</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a href="cart.html" class="cart-btn" aria-label="Cart">🛍️<span class="cart-badge">0</span></a>
+      <button class="nav-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<section class="page-hero" style="padding-bottom:0">
+  <div class="container">
+    <span class="eyebrow">Internal Use Only</span>
+    <h1 class="brush">Admin Panel</h1>
+    <p style="max-width:520px;margin:0 auto">Data booking &amp; pesanan tersimpan lokal di browser ini (LocalStorage), tanpa server/backend.</p>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <div class="section-head" style="text-align:left;margin-bottom:20px;max-width:none">
+      <h2>📅 Daftar Booking</h2>
+    </div>
+    <div style="overflow-x:auto;margin-bottom:60px">
+      <table class="admin-table" id="bookingTable">
+        <thead>
+          <tr><th>ID</th><th>Nama</th><th>WA</th><th>Layanan</th><th>Tanggal</th><th>Jam</th><th>Teknisi</th><th>Catatan</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="section-head" style="text-align:left;margin-bottom:20px;max-width:none">
+      <h2>🧾 Daftar Pesanan &amp; Status Pembayaran</h2>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="admin-table" id="orderTable">
+        <thead>
+          <tr><th>ID Order</th><th>Nama</th><th>No. HP</th><th>Total</th><th>Metode</th><th>Status</th><th>Bukti</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:40px">
+      <button class="btn btn-outline btn-sm" id="resetDataBtn">Reset Semua Data (LocalStorage)</button>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2026 Futichan Nails. All rights reserved.</span>
+      <span>Admin Panel — Local Data Only</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/main.js"></script>
+<script>
+function renderAdmin(){
+  const bookings = getBookings();
+  const orders = getOrders();
+
+  const bTbody = document.querySelector("#bookingTable tbody");
+  bTbody.innerHTML = bookings.length ? bookings.map(b => `
+    <tr>
+      <td>${b.id}</td><td>${b.name}</td><td>${b.wa}</td><td>${b.service}</td>
+      <td>${b.date}</td><td>${b.time}</td><td>${b.technician}</td><td>${b.notes || "-"}</td>
+    </tr>`).join("") : `<tr><td colspan="8" style="text-align:center;color:var(--ink-faint)">Belum ada booking</td></tr>`;
+
+  const oTbody = document.querySelector("#orderTable tbody");
+  oTbody.innerHTML = orders.length ? orders.map(o => `
+    <tr>
+      <td>${o.id}</td><td>${o.name}</td><td>${o.phone}</td><td>${formatRupiah(o.total)}</td>
+      <td>${o.method}</td>
+      <td><span class="badge ${o.status === 'Menunggu Pembayaran' ? 'pending' : 'paid'}">${o.status}</span></td>
+      <td>${o.proof ? `<img src="${o.proof}" style="width:40px;height:40px;object-fit:cover;border-radius:8px">` : "-"}</td>
+    </tr>`).join("") : `<tr><td colspan="7" style="text-align:center;color:var(--ink-faint)">Belum ada pesanan</td></tr>`;
+}
+
+document.getElementById("resetDataBtn").addEventListener("click", () => {
+  if(confirm("Yakin ingin menghapus semua data booking, pesanan, dan keranjang?")){
+    localStorage.removeItem("fn_cart");
+    localStorage.removeItem("fn_bookings");
+    localStorage.removeItem("fn_orders");
+    renderAdmin();
+    updateCartBadge();
+    showToast("Semua data berhasil direset", "🧹");
+  }
+});
+
+document.addEventListener("DOMContentLoaded", renderAdmin);
+</script>
+</body>
+</html>
